@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Spotify Material</string>
+    <string name="action_settings">Settings</string>
+    <string name="enter_artist_name">Please Enter Artist Name</string>
+    <string name="search_artist">Search Artist</string>
+    <string name="search_for_artist_name">Search for Artist Name</string>
+    <string name="albums">Albums</string>
+    <string name="popularity">Popularity:</string>
+    <string name="open_spotify_link">Open Spotify\'s Link</string>
+</resources>
