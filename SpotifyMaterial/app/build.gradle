@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        hockeyApp {
+            keyAlias 'spotify-material'
+            keyPassword 'spotifymaterial2017'
+            storeFile file('/Users/jeanpi/Documents/spotify-material')
+            storePassword 'spotifymaterial2017'
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
@@ -10,17 +18,39 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [HOCKEYAPP_APP_ID: "4e47d4c0fdf8467483fa4ad45d0df69c"]
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        hockeyApp {
+            signingConfig signingConfigs.hockeyApp
+        }
+    }
+    productFlavors {
+    }
+
+    task doMajorVersionIncrement << {
+        println "Incrementing major version..."
+        incrementVersionNumber('major')
+    }
+
+    task doMinorVersionIncrement << {
+        println "Incrementing minor version..."
+        incrementVersionNumber('minor')
+    }
+
+    task doBuildNumberIncrement << {
+        println "Incrementing version number..."
+        incrementBuildNumber()
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -34,5 +64,89 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:cardview-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'net.hockeyapp.android:HockeySDK:5.0.4'
     testCompile 'junit:junit:4.12'
+}
+
+def readVersion() {
+    def versionFile = new File(project.rootDir, 'version.properties')
+    def version = new Properties()
+    def stream
+
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (FileNotFoundException ignore) {
+
+    } finally {
+        if (stream != null) stream.close()
+    }
+
+    //safety default values in case file is missing
+    if (!version['major']) version['major'] = "1"
+    if (!version['minor']) version['minor'] = "0"
+    if (!version['build']) version['build'] = "0"
+
+    return version
+}
+
+def readVersionName() {
+    def version = readeVersion()
+    return "${version['major']}.${version['minor']}"
+}
+
+def readBuildCode() {
+    def version = readVersion()
+    def build = version['build'] as int
+    return build
+}
+
+def incrementBuildNumber() {
+
+    def versionFile = new File(project.rootDir, 'version.properties')
+    def version = readVersion()
+
+    def build = version['build'] as int
+    build++
+    version['build'] = build.toString()
+
+    def stream = new FileOutputStream(versionFile)
+    try {
+        version.store(stream, null)
+    } finally {
+        stream.close()
+    }
+
+    println "Build number is now... " + build
+
+    return build
+}
+
+def incrementVersionNumber(def type="minor") {
+    def versionFile = new File(project.rootDir, 'version.properties')
+    def version = readVersion()
+
+    def major = version['major'] as int
+    def minor = version['minor'] as int
+
+    if (type == 'major') {
+        major++
+        minor = 0
+    } else if (type == 'minor') {
+        minor++
+    }
+
+    version['major'] = major.toString()
+    version['minor'] = minor.toString()
+
+    def stream = new FileOutputStream(versionFile)
+    try {
+        version.store(stream, null)
+    } finally {
+        stream.close()
+    }
+
+    println "Version is now... " + major + "." + minor
+
+    return major + "." + minor
 }

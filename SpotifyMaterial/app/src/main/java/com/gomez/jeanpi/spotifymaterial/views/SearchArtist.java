@@ -34,6 +34,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.spotify.sdk.android.authentication.LoginActivity.REQUEST_CODE;
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
 
 public class SearchArtist extends AppCompatActivity {
 
@@ -93,6 +95,40 @@ public class SearchArtist extends AppCompatActivity {
         } else {
             login();
         }
+
+        checkForUpdates();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // ... your own onResume implementation
+        checkForCrashes();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterManagers();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterManagers();
+    }
+
+    private void checkForCrashes() {
+        CrashManager.register(this);
+    }
+
+    private void checkForUpdates() {
+        // Remove this for store builds!
+        UpdateManager.register(this);
+    }
+
+    private void unregisterManagers() {
+        UpdateManager.unregister();
     }
 
     private void getArtist(final String query) {
