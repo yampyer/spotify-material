@@ -15,8 +15,8 @@ android {
         applicationId "com.gomez.jeanpi.spotifymaterial"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode readBuildCode()
+        versionName readVersionName()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [HOCKEYAPP_APP_ID: "4e47d4c0fdf8467483fa4ad45d0df69c"]
     }
@@ -91,7 +91,7 @@ def readVersion() {
 }
 
 def readVersionName() {
-    def version = readeVersion()
+    def version = readVersion()
     return "${version['major']}.${version['minor']}"
 }
 
